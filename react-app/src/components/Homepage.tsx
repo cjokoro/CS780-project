@@ -26,16 +26,16 @@ function Homepage(){
                                         <input type="password"
                                         className="form-control"
                                         id="password"
-                                        placeholder="password"
+                                        placeholder="Password"
                                         required />
                                         
                                     </div>
                                     <div className="btn-group" role="group" aria-label="Testing">
                                     <button className="btn btn-outline-secondary btn-small flex-fill mx-1">
-                                        Login as doctor
+                                        Log in as doctor
                                     </button>
                                     <button className="btn btn-outline-warning btn-small flex-fill mx-1">
-                                        Login as patient
+                                        Log in as patient
                                     </button>
                                     </div>
                                     
