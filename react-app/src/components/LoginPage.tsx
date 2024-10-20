@@ -10,6 +10,7 @@ const LoginPage = () =>{
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [success, setSuccess] = useState(false);
+    const [currentPage, setCurrentPage] = useState<'doctor' | 'patient' | null>(null);
 
     const navigate = useNavigate();
     const handleSubmit = async (event:any) => {
@@ -20,17 +21,39 @@ const LoginPage = () =>{
                 password
             });
 
+            const { access, refresh } = response.data;
+            localStorage.setItem('accessToken', access);
+            localStorage.setItem('refreshToken', refresh);
+
+            setSuccess(true);
+            setError('');
+
+            if (currentPage === 'doctor') {
+                navigate('/dashboarddoctor'); // Change to your desired doctor route
+            } else if (currentPage === 'patient') {
+                navigate('/dashboardpatient'); // Change to your desired patient route
+            }
         }
         catch(error){
             setSuccess(false);
             setError('Invalid user. Please create an account.');
         }
+
+        const refreshAccessToken = async () => {
+            try {
+                const refreshToken = localStorage.getItem('refreshToken');
+                if (!refreshToken) throw new Error('No refresh token available');
+    
+                const response = await axios.post('http://127.0.0.1:8000/api/token/refresh/', {
+                    refresh: refreshToken,
+                });
+                localStorage.setItem('accessToken', response.data.access);
+            } catch (error) {
+                console.error('Failed to refresh access token:', error);
+                navigate('/');
+            }
+        };
     };
-
-    const createUser = (event:any) => {
-        navigate('/createuser');
-    }
-
     return(
         <div>
             <h1 className="text-sucess text-center">Login</h1>
@@ -66,10 +89,12 @@ const LoginPage = () =>{
                                         
                                     </div>
                                     <div className="btn-group" role="group" aria-label="Testing">
-                                    <button className="btn btn-outline-secondary btn-small flex-fill mx-1">
+                                    <button className="btn btn-outline-secondary btn-small flex-fill mx-1"
+                                    onClick={() => setCurrentPage('doctor')}>
                                         Log in as doctor
                                     </button>
-                                    <button className="btn btn-outline-secondary btn-small flex-fill mx-1">
+                                    <button className="btn btn-outline-secondary btn-small flex-fill mx-1"
+                                    onClick={() => setCurrentPage('patient')}>
                                         Log in as patient
                                     </button>
                                     <button className='btn btn-outline-warning btn-small flex-fill mx-1'

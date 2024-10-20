@@ -1,5 +1,7 @@
 import axios from "axios";
-import React, { useState } from "react"
+import React, { useState } from "react";
+import { useNavigate } from 'react-router-dom';
+import LoginPage from "./LoginPage";
 
 const CreateUser = () =>{
 
@@ -9,7 +11,7 @@ const CreateUser = () =>{
         username:'',
         first_name:'',
         last_name:'',
-        is_staff: false,
+        is_staff:false,
         is_active: true,
         date_joined:'',
         id:'',
@@ -25,6 +27,7 @@ const CreateUser = () =>{
     const [responseMessage, setResponseMessage] = useState('');
     const [currentPage, setCurrentPage] = useState('patient');
 
+    const navigate = useNavigate();
     const handlechange = (event:any) => {
         const { name, value, type, checked} = event.target;
         setUser((prevData) => {
@@ -34,7 +37,8 @@ const CreateUser = () =>{
                     [name]: value,
                     updated_at: value,
                     created_at: value,
-                    last_login: value
+                    last_login: value,
+                    is_staff: currentPage === 'doctor' ? true : false,
                 };
             }
             return {
@@ -53,23 +57,29 @@ const CreateUser = () =>{
 
         console.log(JSON.stringify(user));
 
+        const endpoint = currentPage === 'doctor' 
+            ? 'http://127.0.0.1:8000/api/doctor/' 
+            : 'http://127.0.0.1:8000/api/patient/';
+
         try {
-            const response = await axios.post(`http://127.0.0.1:8000/api/patient/`, JSON.stringify(user),{
+            const response = await axios.post(endpoint, JSON.stringify(user),{
                 headers:{
                     "Content-Type": "application/json"
                 }
             });
             setResponseMessage(`Success: ${response.data.message}`);
+            window.alert('User was created successfully! Please log back in.');
+            navigate('/');
         }
         catch(error:any){
             if (error.response){
-                console.log(`Error:${error.response.status} - ${JSON.stringify(error.response.data)}`)
+                setResponseMessage(`Error:${error.response.status} - ${JSON.stringify(error.response.data)}`)
             } else if (error.request) {
                 // Request was made but no response received
-                console.log('Error: No response from server');
+                setResponseMessage('Error: No response from server');
               } else {
                 // Something else caused the error
-                console.log(`Error: ${error.message}`);
+                setResponseMessage(`Error: ${error.message}`);
               }
         }
     }
@@ -77,7 +87,6 @@ const CreateUser = () =>{
     return(
     <div>
         <div className="text-sucess text-center">
-            {/* Radio buttons for page selection */}
             <div className="page-selector">
                 <label className="mx-2">
                     <input
@@ -86,7 +95,7 @@ const CreateUser = () =>{
                         checked={currentPage === 'patient'}
                         onChange={handlePageChange}
                     />
-                    Create Patient
+                    <span className="ps-1">Create new user as patient</span>
                 </label>
                 <label className="mx-2">
                     <input
@@ -95,7 +104,7 @@ const CreateUser = () =>{
                         checked={currentPage === 'doctor'}
                         onChange={handlePageChange}
                     />
-                    Create Doctor
+                     <span className="ps-1">Create new user as doctor</span>
                 </label>
             </div>
         </div>
@@ -218,7 +227,15 @@ const CreateUser = () =>{
                                         onChange={handlechange}
                                         required/>
                                 </div>
+                                {responseMessage && (
+                                <div className={`alert ${responseMessage.startsWith('Error') ? 'alert-danger' : 'alert-success'}`}>
+                                    {responseMessage}
+                                </div>
+                            )}
                                 <button className="btn btn-outline-secondary btn-small flex-fill mx-1">Create new user</button>
+                                <button className="btn btn-outline-secondary btn-small flex-fill mx-1"
+                                onClick={() => navigate('/')}>
+                                Already have an account?</button>
                             </form>
                         </div>
                     </div>
