@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios  from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { jwtDecode } from 'jwt-decode';
 
 //'http://localhost:8000/api/schema/swagger-ui/#/token/token_refresh_create'
 
@@ -25,13 +26,21 @@ const LoginPage = () =>{
             localStorage.setItem('accessToken', access);
             localStorage.setItem('refreshToken', refresh);
 
+            const decodedToken: any = jwtDecode(access);
+            console.log("Decoded Token:", decodedToken);  // Log the token payload
+
+            // Extract user_id from the token
+            const userId = decodedToken.user_id;
+            localStorage.setItem('userId', userId)
+            console.log("User ID:", userId);
+
             setSuccess(true);
             setError('');
 
             if (currentPage === 'doctor') {
-                navigate('/dashboarddoctor'); // Change to your desired doctor route
+                navigate('/registerdonor'); // Change to your desired doctor route
             } else if (currentPage === 'patient') {
-                navigate('/dashboardpatient'); // Change to your desired patient route
+                navigate('/registerdonor'); // Change to your desired patient route
             }
         }
         catch(error){
@@ -100,6 +109,10 @@ const LoginPage = () =>{
                                     <button className='btn btn-outline-warning btn-small flex-fill mx-1'
                                             onClick={() => navigate('/createuser')}>
                                         Create new user
+                                    </button>
+                                    <button className="btn btn-outline-secondary btn-small flex-fill mx-1"
+                                     onClick={() => navigate('/searchdonor')}>
+                                        Search Donor
                                     </button>
                                     </div>
                                     
