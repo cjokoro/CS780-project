@@ -38,6 +38,7 @@ export default class App extends React.Component {
     this.cancelAppointment = this.cancelAppointment.bind(this);
     this.setLoggedInUser = this.setLoggedInUser.bind(this);  // New method to set user
     this.completeAppointment = this.completeAppointment.bind(this);
+    this.logout = this.logout.bind(this);
   }
 
   bookAppointment(appointment) {
@@ -78,12 +79,22 @@ export default class App extends React.Component {
     });
   }
 
+  logout() {
+    // Clear the logged-in user from the state
+    this.setState({
+      loggedInUser: null,
+    });
+  
+    // Redirect to the login page on a different localhost port
+    window.location.href = 'http://localhost:5173';
+  }
+
   componentDidMount() {
     document.title = 'Doctor Patient Portal';
   }
 
   render(){
-    const { loggedInUser } = this.state;
+    const { loggedInUser, redirectToLogin } = this.state;
 
     return (
       <Router>
@@ -96,10 +107,15 @@ export default class App extends React.Component {
                   {loggedInUser.name && <h2>Welcome, {loggedInUser.name} ({loggedInUser.role})</h2>}
                 </Col>
                 <Col>
-                  <Link>
-                    <button style={{position: 'relative', left: 300, bottom: 50}}>Login button</button>
-                    {/* take to login page Chidera made */}
-                  </Link>
+                  {loggedInUser ? (
+                    <button onClick={this.logout} style={{ position: 'relative', left: 300, bottom: 50 }}>
+                      Logout
+                    </button>
+                  ) : (
+                    <button onClick={() => window.location.href = 'http://localhost:5173'} style={{ position: 'relative', left: 300, bottom: 50 }}>
+                      Login
+                    </button>
+                  )}
                 </Col>
                 
               </header>
@@ -124,7 +140,7 @@ export default class App extends React.Component {
                     </li>
                     <li>
                       <Link to="/organ-donation">
-                        <button class="button">Organ Donation</button>
+                        <button className="button">Organ Donation</button>
                       </Link>
                     </li>
                   </ul>

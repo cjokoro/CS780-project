@@ -10,6 +10,8 @@ const Appointments = ({ availableAppointments, bookAppointment, currentPage }) =
   const [error, setError] = useState('');       // State for error feedback
   const navigate = useNavigate();
 
+  
+
   useEffect(() => {
     const fetchAppointments = async () => {
       try {
@@ -23,11 +25,6 @@ const Appointments = ({ availableAppointments, bookAppointment, currentPage }) =
         setSuccess(true);
         setError('');
 
-        if (currentPage === 'doctor') {
-          navigate('/dashboarddoctor'); // Change to your desired doctor route
-        } else if (currentPage === 'patient') {
-          navigate('/dashboardpatient'); // Change to your desired patient route
-        }
       } catch (error) {
         setSuccess(false);
         setError('Invalid user. Please create an account.');
