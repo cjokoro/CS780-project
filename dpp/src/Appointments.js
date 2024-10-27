@@ -1,45 +1,48 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios  from 'axios';
+import { useNavigate } from 'react-router-dom';
 import './App.css';
 
-const Appointments = ({ availableAppointments, bookAppointment }) => {
+const Appointments = ({ availableAppointments, bookAppointment, currentPage }) => {
   const [appointments, setAppointments] = useState([]);
   const [reason, setReason] = useState(true); 
+  const [success, setSuccess] = useState(null); // State for success feedback
+  const [error, setError] = useState('');       // State for error feedback
+  const navigate = useNavigate();
 
   useEffect(() => {
-    //simulate fetching appointments data from database
-    
-    // try{
-    //   const response = axios.get('http://localhost:8000/api/appointment/');
-    //   console.log(response);
+    const fetchAppointments = async () => {
+      try {
+        const response = await axios.get('http://localhost:8000/api/appointment/');
+        console.log(response);
 
-    //   // const { access, refresh } = response.data;
-    //   // localStorage.setItem('accessToken', access);
-    //   // localStorage.setItem('refreshToken', refresh);
+        const { access, refresh } = response.data;
+        localStorage.setItem('accessToken', access);
+        localStorage.setItem('refreshToken', refresh);
 
-    //   // setSuccess(true);
-    //   // setError('');
+        setSuccess(true);
+        setError('');
 
-    //   // if (currentPage === 'doctor') {
-    //   //     navigate('/dashboarddoctor'); // Change to your desired doctor route
-    //   // } else if (currentPage === 'patient') {
-    //   //     navigate('/dashboardpatient'); // Change to your desired patient route
-    //   // }
-    // }
-    // catch(error){
-    //   // setSuccess(false);
-    //   // setError('Invalid user. Please create an account.');
-    // }
-    //setReason(!reason)
-    const availableAppointments = [
-      { id: 1, doctor: 'Dr. Smith', patientName: 'John Doe', time: '10:00 AM' },
-      { id: 2, doctor: 'Dr. Smith', patientName: 'Jane Doe', time: '11:00 AM' },
-      { id: 3, doctor: 'Dr. Smith', patientName: 'John Doe', time: '2:00 PM' },
-      { id: 4, doctor: 'Dr. Lee', patientName: 'Sam Smith', time: '3:00 PM' },
-    ];
-    setAppointments(availableAppointments);
-  }, []);
+        if (currentPage === 'doctor') {
+          navigate('/dashboarddoctor'); // Change to your desired doctor route
+        } else if (currentPage === 'patient') {
+          navigate('/dashboardpatient'); // Change to your desired patient route
+        }
+      } catch (error) {
+        setSuccess(false);
+        setError('Invalid user. Please create an account.');
+      }
+    };
 
+    fetchAppointments();
+  }, [currentPage, navigate]);
+// const availableAppointments = [
+    //   { id: 1, doctor: 'Dr. Smith', patientName: 'John Doe', time: '10:00 AM' },
+    //   { id: 2, doctor: 'Dr. Smith', patientName: 'Jane Doe', time: '11:00 AM' },
+    //   { id: 3, doctor: 'Dr. Smith', patientName: 'John Doe', time: '2:00 PM' },
+    //   { id: 4, doctor: 'Dr. Lee', patientName: 'Sam Smith', time: '3:00 PM' },
+    // ];
+    // setAppointments(availableAppointments);
   const handleBookAppointment = (appointment) => {
     //all the bookAppointment function passed via props
     bookAppointment({

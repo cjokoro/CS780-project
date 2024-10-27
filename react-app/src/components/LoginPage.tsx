@@ -14,6 +14,11 @@ const LoginPage = () =>{
     const [currentPage, setCurrentPage] = useState<'doctor' | 'patient' | null>(null);
 
     const navigate = useNavigate();
+
+    const redirectToMain = () => {
+        window.location.href = 'http://localhost:3000'; // Replace with your target port
+      };
+
     const handleSubmit = async (event:any) => {
         event.preventDefault('');
         try{
@@ -99,11 +104,11 @@ const LoginPage = () =>{
                                     </div>
                                     <div className="btn-group" role="group" aria-label="Testing">
                                     <button className="btn btn-outline-secondary btn-small flex-fill mx-1"
-                                    onClick={() => setCurrentPage('doctor')}>
+                                    onClick={redirectToMain}>
                                         Log in as doctor
                                     </button>
                                     <button className="btn btn-outline-secondary btn-small flex-fill mx-1"
-                                    onClick={() => setCurrentPage('patient')}>
+                                    onClick={redirectToMain}>
                                         Log in as patient
                                     </button>
                                     <button className='btn btn-outline-warning btn-small flex-fill mx-1'
