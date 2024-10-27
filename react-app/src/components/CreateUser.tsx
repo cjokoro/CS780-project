@@ -55,8 +55,6 @@ const CreateUser = () =>{
     const handleSubmit = async (event:any) => {
         event.preventDefault();
 
-        console.log(JSON.stringify(user));
-
         const endpoint = currentPage === 'doctor' 
             ? 'http://127.0.0.1:8000/api/doctor/' 
             : 'http://127.0.0.1:8000/api/patient/';
