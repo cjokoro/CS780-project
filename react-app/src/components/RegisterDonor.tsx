@@ -71,7 +71,7 @@ const RegisterDonor = () =>{
 
     return(
         <div>
-        <div className="container">
+        <div className="container mt-5">
             <div className="row justify-content-center">
                 <div className="col-md-6">
                     <div className="card">
@@ -113,6 +113,9 @@ const RegisterDonor = () =>{
                                 </div>
                             )}
                                 <button className="btn btn-outline-secondary btn-small flex-fill mx-1">Finish registration</button>
+                                <button className="btn btn-outline-warning btn-small flex-fill mx-1"
+                                onClick={()=> window.location.href = 'http://localhost:3000'}
+                                >Return Home</button>
                             </form>
                         </div>
                     </div>

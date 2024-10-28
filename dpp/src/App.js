@@ -117,7 +117,9 @@ export default class App extends React.Component {
                     </button>
                   )}
                 </Col>
-                
+                {loggedInUser.role === 'patient' && (
+                <button onClick={() => window.location.href = 'http://localhost:5173/registerdonor'} style={{ position: 'relative', left: 310, bottom: 50 }}>Register as a donor</button>
+                )}
               </header>
             </Row>
             {loggedInUser.role === 'patient' && (
@@ -139,7 +141,7 @@ export default class App extends React.Component {
                       </Link>
                     </li>
                     <li>
-                      <Link to="/organ-donation">
+                      <Link to="http://localhost:5173/searchdonor">
                         <button className="button">Organ Donation</button>
                       </Link>
                     </li>
@@ -171,7 +173,7 @@ export default class App extends React.Component {
                 <Route path="/manage-appointments" element={<ManageAppointments userAppointments={this.state.userAppointments} cancelAppointment={this.cancelAppointment} loggedInUser={this.state.loggedInUser} />} />
                 <Route path="/doctor-manage-appointments" element={<DoctorManageAppointments userAppointments={this.state.userAppointments} cancelAppointment={this.cancelAppointment} loggedInUser={this.state.loggedInUser} completeAppointment={this.completeAppointment}/>} />
                 <Route path="/view-patients" element={ <ViewPatients loggedInUser={this.state.loggedInUser} userAppointments={this.state.userAppointments}/> } />
-                <Route path="/organ-donation" element={<OrganDonation />} />
+                <Route path="http://localhost:5173/searchdonor" element={<OrganDonation />} />
                 {/* <Route path="/view-patients" element={<ViewPatients />} /> */}
               </Routes>
             </Row>

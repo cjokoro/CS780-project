@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 type Donor = {
   id: number;
@@ -8,18 +9,17 @@ type Donor = {
   donor: string;
 };
 
+// const navigate = useNavigate();
 const DonorSearch: React.FC = () => {
   const [organSearch, setOrganSearch] = useState<string>('');
   const [donors, setDonors] = useState<Donor[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Handle input change
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setOrganSearch(event.target.value);
   };
 
-  // Search donors based on organ name
   const fetchDonors = async () => {
     setLoading(true);
     setError(null);
@@ -43,16 +43,15 @@ const DonorSearch: React.FC = () => {
   };
 
   const handleClearSearch = () => {
-    setOrganSearch(''); // Clear the search term
+    setOrganSearch('');
     setDonors([]);
-};
-
+  };
 
   return (
-    <div className="container">
-      <h2>Search for Organ Donors</h2>
-      <form onSubmit={handleSearch}>
-        <div className="form-group">
+    <div className="container mt-5">
+      <h2 className="mb-4">Search for Organ Donors</h2>
+      <form onSubmit={handleSearch} className="mb-3">
+        <div className="form-group mb-3">
           <input
             type="text"
             className="form-control"
@@ -62,19 +61,26 @@ const DonorSearch: React.FC = () => {
             required
           />
         </div>
-        <button type="submit" className="btn btn-outline-warning btn-small flex-fill mx-1" disabled={loading}>
-          {loading ? 'Searching...' : 'Search'}
-        </button>
-        <button type="submit" className="btn btn-outline-secondary btn-small flex-fill mx-1" onClick={handleClearSearch}>Clear</button>
+        <div className="d-flex mb-3">
+          <button type="submit" className="btn btn-outline-warning me-2" disabled={loading}>
+            {loading ? 'Searching...' : 'Search'}
+          </button>
+          <button type="button" className="btn btn-outline-secondary me-2" onClick={handleClearSearch}>
+            Clear
+          </button>
+          <button type="button" className="btn btn-outline-warning" onClick={() => window.location.href = 'http://localhost:3000'}>
+            Return home
+          </button>
+        </div>
       </form>
 
       {error && <p style={{ color: 'red' }}>{error}</p>}
 
-      <div>
+      <div className='container'>
         {donors.length > 0 ? (
-          <ul className="list-group mt-4">
+          <ul className="list-group">
             {donors.map((donor) => (
-              <li key={donor.id} className="list-group-item">
+              <li key={donor.id} className="list-group-item mb-3">
                 <strong>Organ:</strong> {donor.organ} <br />
                 <strong>Availability:</strong> {donor.availability_status} <br />
                 <strong>Donor ID:</strong> {donor.donor}
