@@ -27,9 +27,10 @@ export default class App extends React.Component {
       userAppointments: [], //store user's booked appointments
       availableAppointments: [],
       loggedInUser: {
-        name: 'John Doe',
-        role: 'patient', // Role will be set as 'patient' or 'doctor'
-        // role: 'doctor',
+        userId: null,    // Initialize with null
+        is_staff: false,  // Default to false
+        name: 'John Doe',        // Initialize as empty
+        role: 'patient', // Default role; can be updated later
         medicalHistory: [],
       },
     };

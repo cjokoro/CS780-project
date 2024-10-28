@@ -18,9 +18,7 @@ const Appointments = ({ availableAppointments, bookAppointment, currentPage }) =
         const response = await axios.get('http://localhost:8000/api/appointment/');
         console.log(response);
 
-        const { access, refresh } = response.data;
-        localStorage.setItem('accessToken', access);
-        localStorage.setItem('refreshToken', refresh);
+        setAppointments(response.data.results || []);
 
         setSuccess(true);
         setError('');
@@ -57,7 +55,9 @@ const Appointments = ({ availableAppointments, bookAppointment, currentPage }) =
       <ul class="appointment-list">
         {appointments.map((appointment) => (
           <li key={appointment.id} class="appointment-info">
-            {appointment.doctor} - {appointment.time}
+            doctor ID: {appointment.doctor_id} 
+            <br></br>Date: {appointment.appointment_date} 
+            <br></br>Status: {appointment.status}
             <label>
                 Reason:
                 <input 
