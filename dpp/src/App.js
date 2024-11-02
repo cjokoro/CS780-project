@@ -57,7 +57,8 @@ export default class App extends React.Component {
       this.setState({
         loggedInUser: {
           name: 'John Doe', // Set name based on retrieved user ID if necessary
-          role: 'doctor',   // Example role
+          // role: 'doctor',   // Example role
+          role: 'patient',
           medicalHistory: [],
         },
       });
