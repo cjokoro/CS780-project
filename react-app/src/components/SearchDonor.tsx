@@ -25,7 +25,7 @@ const DonorSearch: React.FC = () => {
     setError(null);
     try {
       const response = await axios.get<{ results: Donor[] }>(
-        `http://127.0.0.1:8000/api/organ-donor?organ=${organSearch}`
+        `http://127.0.0.1:8000/api/organ-donor?search=${organSearch}`
       );
       setDonors(response.data.results); 
     } catch (error: any) {

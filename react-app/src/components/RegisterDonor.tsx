@@ -54,7 +54,7 @@ const RegisterDonor = () =>{
             });
             setResponseMessage(`Success: ${response.data.message}`);
             window.alert('You have successfully registered as an organ donor.');
-            navigate('/');
+            window.location.href ='http://localhost:3000';
         }
         catch(error:any){
             if (error.response){
