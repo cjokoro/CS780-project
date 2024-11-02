@@ -44,34 +44,58 @@ export default class App extends React.Component {
     document.title = 'Doctor Patient Portal';
     
     // Function to retrieve userId from cookies
-    const getUserIdFromCookie = () => {
-      const cookies = document.cookie.split('; ');
-      const userIdCookie = cookies.find((cookie) => cookie.startsWith('userId='));
-      console.log(userIdCookie ? userIdCookie.split('=')[1] : null);
-      return userIdCookie ? userIdCookie.split('=')[1] : null;
-    };
+    function getCookie(name) {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop().split(';').shift();
+      return null;
+    }    
 
-    const userId = getUserIdFromCookie();
+    const userId = getCookie('userId');
+    const userRole = getCookie('userRole');
+    console.log(userId, userRole);
     if (userId) {
       // Fetch additional user data (role, name) if needed
       this.setState({
         loggedInUser: {
           name: 'John Doe', // Set name based on retrieved user ID if necessary
           // role: 'doctor',   // Example role
-          role: 'patient',
+          role: userRole,
           medicalHistory: [],
         },
       });
     }
 
   const findUserRole = () =>{
-    const patientResponse = axios.get(`http://127.0.0.1:8000/api/patient/${userId}`);
-    console.log(patientResponse);
-    if(patientResponse.data === '404'){
-      const doctorResponse = axios.get(`http://127.0.0.1:8000/api/doctor/${userId}`);
-      console.log(doctorResponse);
+    if(userRole === 'patient'){
+      axios.get(`http://127.0.0.1:8000/api/patient/${userId}`)
+      .then((response) =>{
+
+        {this.setState({
+          loggedInUser: {
+            name: response.data.first_name + " " + response.data.last_name, // Set name based on retrieved user ID if necessary
+            role: userRole,
+            medicalHistory: [],
+          },
+        })
+      }
+      });
+      }
+      else{
+        axios.get(`http://127.0.0.1:8000/api/doctor/${userId}`)
+        .then((response) =>{
+          {this.setState({
+          loggedInUser: {
+            name: response.data.first_name + " " + response.data.last_name, // Set name based on retrieved user ID if necessary
+            role: userRole,
+            medicalHistory: [],
+          },
+        })
+      }
+      
     }
-  };
+        )};
+      };
   findUserRole();
 }
 

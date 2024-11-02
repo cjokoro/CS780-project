@@ -10,7 +10,7 @@ const LoginPage: React.FC = () => {
   const [success, setSuccess] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = async (event: React.FormEvent) => {
+  const handleSubmit = async (event: React.FormEvent, role: string) => {
     event.preventDefault();
     try {
       const response = await axios.post('http://127.0.0.1:8000/api/token/', { username, password });
@@ -25,6 +25,8 @@ const LoginPage: React.FC = () => {
       // Store userId in local storage and cookie
       localStorage.setItem('userId', userId);
       document.cookie = `userId=${userId}; path=/; SameSite=None; Secure`;
+      document.cookie = `userRole=${role}; path=/; SameSite=None; Secure`;
+    
 
       setSuccess(true);
       setError('');
@@ -45,7 +47,7 @@ const LoginPage: React.FC = () => {
         <div className="col-md-6">
           <div className="card">
             <div className="card-body">
-              <form id="registrationForm" onSubmit={handleSubmit}>
+              <form id="registrationForm" onSubmit={e => handleSubmit(e,'patient')}>
                 <div className="form-group mb-3">
                   <label htmlFor="username">Username</label>
                   <input
@@ -71,13 +73,13 @@ const LoginPage: React.FC = () => {
                   />
                 </div>
                 <div className="btn-group" role="group" aria-label="Login options">
-                  <button className="btn btn-outline-secondary" onClick={handleSubmit}>
+                  <button type="button" className="btn btn-outline-secondary" onClick={e => handleSubmit(e,'doctor')}>
                     Log in as doctor
                   </button>
-                  <button className="btn btn-outline-secondary" onClick={handleSubmit}>
+                  <button type="button" className="btn btn-outline-secondary" onClick={e => handleSubmit(e,'patient')}>
                     Log in as patient
                   </button>
-                  <button className="btn btn-outline-warning" onClick={() => navigate('/createuser')}>
+                  <button type="button" className="btn btn-outline-warning" onClick={() => navigate('/createuser')}>
                     Create new user
                   </button>
                 </div>
