@@ -1,6 +1,6 @@
 import './App.css';
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link, Navigate, useNavigate} from 'react-router-dom';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -17,7 +17,6 @@ const OrganDonation = () => (   // Temporary component for Organ Donation
     <p>Register as an organ donor or search for available organs.</p>
   </div>
 );
-
 export default class App extends React.Component {
   constructor(props) {
     super(props);
@@ -41,6 +40,37 @@ export default class App extends React.Component {
   }
 
   componentDidMount() {
+    const findUserRole = () =>{
+      if(userRole === 'patient'){
+        axios.get(`http://127.0.0.1:8000/api/patient/${userId}`)
+        .then((response) =>{
+  
+          {this.setState({
+            loggedInUser: {
+              name: response.data.first_name + " " + response.data.last_name, // Set name based on retrieved user ID if necessary
+              role: userRole,
+              medicalHistory: [],
+            },
+          })
+        }
+      });
+    }
+      else{
+        axios.get(`http://127.0.0.1:8000/api/doctor/${userId}`)
+        .then((response) =>{
+            {this.setState({
+            loggedInUser: {
+              name: response.data.first_name + " " + response.data.last_name, // Set name based on retrieved user ID if necessary
+              role: userRole,
+              medicalHistory: [],
+            },
+          })
+        }
+      }  
+    )};
+   };
+  
+
     document.title = 'Doctor Patient Portal';
     
     // Function to retrieve userId from cookies
@@ -53,50 +83,15 @@ export default class App extends React.Component {
 
     const userId = getCookie('userId');
     const userRole = getCookie('userRole');
-    console.log(userId, userRole);
-    if (userId) {
-      // Fetch additional user data (role, name) if needed
-      this.setState({
-        loggedInUser: {
-          name: 'John Doe', // Set name based on retrieved user ID if necessary
-          // role: 'doctor',   // Example role
-          role: userRole,
-          medicalHistory: [],
-        },
-      });
-    }
 
-  const findUserRole = () =>{
-    if(userRole === 'patient'){
-      axios.get(`http://127.0.0.1:8000/api/patient/${userId}`)
-      .then((response) =>{
-
-        {this.setState({
-          loggedInUser: {
-            name: response.data.first_name + " " + response.data.last_name, // Set name based on retrieved user ID if necessary
-            role: userRole,
-            medicalHistory: [],
-          },
-        })
-      }
-      });
-      }
-      else{
-        axios.get(`http://127.0.0.1:8000/api/doctor/${userId}`)
-        .then((response) =>{
-          {this.setState({
-          loggedInUser: {
-            name: response.data.first_name + " " + response.data.last_name, // Set name based on retrieved user ID if necessary
-            role: userRole,
-            medicalHistory: [],
-          },
-        })
-      }
-      
+    if(userId !== 'null' || userRole !== 'null'){
+      findUserRole();
     }
-        )};
-      };
-  findUserRole();
+    else{
+      window.alert('Login failed. Please try again')
+      window.location.href = 'http://localhost:5173';
+    }
+  
 }
 
   bookAppointment(appointment) {
@@ -135,7 +130,12 @@ export default class App extends React.Component {
   }
 
   logout() {
-    this.setState({ loggedInUser: null });
+    this.setState({ loggedInUser:
+      {
+        name: '',
+        role: '',
+        medicalHistory: [],
+      }  });
     window.location.href = 'http://localhost:5173';
   }
 
@@ -197,7 +197,7 @@ export default class App extends React.Component {
                   </li>
                   <li>
                     <Link to="http://localhost:5173/searchdonor">
-                      <button className="button">Organ Donation</button>
+                      <button className="button">Organ Search</button>
                     </Link>
                   </li>
                 </ul>
