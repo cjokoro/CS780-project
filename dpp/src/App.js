@@ -10,6 +10,7 @@ import ManageAppointments from './ManageAppointments';
 import DoctorManageAppointments from './DoctorManageAppointments';
 import MedicalHistory from './MedicalHistory';
 import ViewPatients from './ViewPatients';
+import CreateAppointment from "./CreateAppointment"
 
 const OrganDonation = () => (   // Temporary component for Organ Donation
   <div>
@@ -208,6 +209,11 @@ export default class App extends React.Component {
               <nav>
                 <ul style={{ listStyleType: 'none', padding: 0 }}>
                   <li>
+                    <Link to="/create-appointment">
+                      <button className="button">Create/Delete Appointment</button>
+                    </Link>
+                  </li>
+                  <li>
                     <Link to="/doctor-manage-appointments">
                       <button className="button">Manage Appointments</button>
                     </Link>
@@ -228,6 +234,7 @@ export default class App extends React.Component {
                 <Route path="/manage-appointments" element={<ManageAppointments userAppointments={this.state.userAppointments} cancelAppointment={this.cancelAppointment} loggedInUser={this.state.loggedInUser} />} />
                 <Route path="/doctor-manage-appointments" element={<DoctorManageAppointments userAppointments={this.state.userAppointments} cancelAppointment={this.cancelAppointment} loggedInUser={this.state.loggedInUser} completeAppointment={this.completeAppointment} />} />
                 <Route path="/view-patients" element={<ViewPatients loggedInUser={this.state.loggedInUser} userAppointments={this.state.userAppointments} />} />
+                <Route path="/create-appointment" element={<CreateAppointment loggedInUser={this.state.loggedInUser} userAppointments={this.state.userAppointments} />} />
                 <Route path="http://localhost:5173/searchdonor" element={<OrganDonation />} />
               </Routes>
             </Row>
