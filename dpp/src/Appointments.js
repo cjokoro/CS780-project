@@ -7,8 +7,27 @@ const Appointments = ({ availableAppointments, bookAppointment }) => {
   const [success, setSuccess] = useState(null);
   const [error, setError] = useState('');
   const [status, setStatus] = useState('');
+  const [userId, setUserId] = useState('');
+  const [userInfo, setUserInfo] = useState('');
 
   useEffect(() => {
+    const getUserIdFromCookie = () => {
+      const cookies = document.cookie.split('; ');
+      const userIdCookie = cookies.find((cookie) => cookie.startsWith('userId='));
+      //console.log(userIdCookie ? userIdCookie.split('=')[1] : null);
+      return userIdCookie ? userIdCookie.split('=')[1] : null;
+    };
+    const userId = getUserIdFromCookie();
+    setUserId(userId);
+    
+    const getUserFromId = async () => {
+      const response = await axios.get(`http://localhost:8000/api/patient/${userId}`);
+      const user = response;
+      setUserInfo(user);
+      //console.log(user);
+    }
+    getUserFromId();
+
     const fetchAppointments = async () => {
       try {
         const response = await axios.get('http://localhost:8000/api/appointment/');
@@ -20,7 +39,7 @@ const Appointments = ({ availableAppointments, bookAppointment }) => {
           }
           return null;
         }).filter(appointment => appointment !== null);
-        console.log(nullPatientAppointments);
+        //console.log(nullPatientAppointments);
   
         setAppointments(nullPatientAppointments);
 
@@ -32,18 +51,28 @@ const Appointments = ({ availableAppointments, bookAppointment }) => {
         setError('Invalid user. Please create an account.');
       }
     };
-
     fetchAppointments();
   }, []);
-  const handleBookAppointment = (appointment) => {
-    //all the bookAppointment function passed via props
-    bookAppointment({
-      ...appointment,
-    });
-    //remove the booked appointment from available appointments
-    // setAppointments(appointments.filter((a) => a.id !== appointment.id));
-
-    //appointments.patient_id = loggedInUser.id;                                    MAKE THIS SO IT JUST CHANGES THE PATIENT ID TO THE USER'S ID
+  const handleBookAppointment = async (appointment) => {
+    const updatedData = {
+      appointment_date: appointment.appointment_date,
+      status: appointment.status,
+      patient_id: userId,  // Set patient_id to the user's ID
+      doctor_id: appointment.doctor_id,
+    };
+    console.log("appointment: ", appointment);
+    console.log("updatedData: ", updatedData);
+    try {
+      const response = axios.put(`http://localhost:8000/api/appointment/${appointment.id}/`, updatedData);
+      //console.log('Updated appointment:', response.data);
+      //console.log("appointment data: ", response);
+      setAppointments(appointments.filter((a) => a.id !== appointment.id));
+    } catch (error) {
+      console.error('Error updating appointment:', error);
+    }
+    //Appointments.fetchAppointments();
+    
+    //appointments.patient_id = userId;
   };
 
   return (

@@ -7,29 +7,63 @@ const ManageAppointments = ({ cancelAppointment }) => {
   const [expandedAppointmentId, setExpandedAppointmentId] = useState(null);
   const [success, setSuccess] = useState(null);
   const [error, setError] = useState('');
+  const [appointments, setAppointments] = useState([]);
+  const [userId, setUserId] = useState('');
+  const [userInfo, setUserInfo] = useState('');
 
   useEffect(() => {
-    const fetchAppointments = async () => {
+    const getUserIdFromCookie = () => {
+      const cookies = document.cookie.split('; ');
+      const userIdCookie = cookies.find((cookie) => cookie.startsWith('userId='));
+      return userIdCookie ? userIdCookie.split('=')[1] : null;
+    };
+    
+    const userId = getUserIdFromCookie();
+    setUserId(userId);
+  
+    const fetchUserData = async () => {
       try {
+        const user = await getUserFromId();
+        setUserInfo(user); // Set userInfo after user data is fetched
+  
         const response = await axios.get('http://localhost:8000/api/appointment/');
-        console.log(response.data.results);
-
-        setBookedAppointments(response.data.results || [])
-
+        const nullPatientAppointments = response.data.results
+          .map(appointment => appointment.patient_id === user.id ? appointment : null)
+          .filter(appointment => appointment !== null && appointment.status !== 'completed');
+  
+        setBookedAppointments(nullPatientAppointments);
         setSuccess(true);
         setError('');
-
       } catch (error) {
         setSuccess(false);
         setError('Invalid user. Please create an account.');
       }
     };
-    fetchAppointments();
+  
+    const getUserFromId = async () => {
+      const response = await axios.get(`http://localhost:8000/api/patient/${userId}`);
+      return response.data;
+    };
+  
+    fetchUserData();
   }, []);
 
-  const handleCancelAppointment = (appointment) => {
-    cancelAppointment(appointment); // Call the cancelAppointment function passed via props
-    setBookedAppointments(bookedAppointments.filter((a) => a.id !== appointment.id)); // Remove from the user's booked appointments list
+  const handleCancelAppointment = async (appointment) => {
+    try {
+      // Send a PATCH request to update the appointment's patient_id to null
+      await axios.patch(`http://localhost:8000/api/appointment/${appointment.id}/`, {
+        patient_id: null
+      });
+      
+      // Update the bookedAppointments state by removing the canceled appointment
+      setBookedAppointments(bookedAppointments.filter((a) => a.id !== appointment.id));
+      
+      setSuccess(true);
+      setError('');
+    } catch (error) {
+      setSuccess(false);
+      setError('Failed to cancel the appointment. Please try again.');
+    }
   };
 
   const handleToggleExpand = (appointmentId) => {
