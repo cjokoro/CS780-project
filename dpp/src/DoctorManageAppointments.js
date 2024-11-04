@@ -29,7 +29,7 @@ const DoctorManageAppointments = ({ userAppointments, cancelAppointment, loggedI
         const response = await axios.get('http://localhost:8000/api/appointment/');
         const nullDoctorAppointments = response.data.results
           .map(appointment => appointment.doctor_id === user.id ? appointment : null)
-          .filter(appointment => appointment !== null && appointment.status !== 'completed');
+          .filter(appointment => appointment !== null && appointment.status !== 'completed' && appointment.patient_id !== null);
   
         setBookedAppointments(nullDoctorAppointments);
         setSuccess(true);
@@ -52,7 +52,7 @@ const DoctorManageAppointments = ({ userAppointments, cancelAppointment, loggedI
     try {
       // Send a PATCH request to update the appointment's doctor_id to null
       await axios.patch(`http://localhost:8000/api/appointment/${appointment.id}/`, {
-        doctor_id: null
+        patient_id: null
       });
       
       // Update the bookedAppointments state by removing the canceled appointment
@@ -74,11 +74,7 @@ const DoctorManageAppointments = ({ userAppointments, cancelAppointment, loggedI
       });
       
       // Update the bookedAppointments state with the modified appointment
-      setBookedAppointments(
-        bookedAppointments.map((a) => 
-          a.id === appointment.id ? { ...a, status: updatedAppointment.data.status } : a
-        )
-      );
+      setBookedAppointments(bookedAppointments.filter((a) => a.id !== appointment.id));
       
       setSuccess(true);
       setError('');
