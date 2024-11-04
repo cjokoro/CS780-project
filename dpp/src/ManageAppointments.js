@@ -89,15 +89,6 @@ const ManageAppointments = ({ cancelAppointment }) => {
       ) : (
         <p>No booked appointments.</p>
       )}
-      {/* {bookedAppointments.map((appointment) => (
-          <li key={appointment.id} className="appointment-info" onClick={() => handleToggleExpand(appointment.id)}>
-            Doctor Id: {appointment.doctor_id} 
-            <br></br>Date: {appointment.appointment_date} 
-            <br></br>Status: {appointment.status}
-            <br></br>Patient Id: {appointment.patient_id}
-            <button onClick={() => handleCancelAppointment(appointment)} className="cancel-button">Cancel</button>
-          </li>
-        ))} */}
     </div>
   );
 };

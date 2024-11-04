@@ -27,11 +27,11 @@ const DoctorManageAppointments = ({ userAppointments, cancelAppointment, loggedI
         setUserInfo(user); // Set userInfo after user data is fetched
   
         const response = await axios.get('http://localhost:8000/api/appointment/');
-        const nullPatientAppointments = response.data.results
-          .map(appointment => appointment.patient_id === user.id ? appointment : null)
+        const nullDoctorAppointments = response.data.results
+          .map(appointment => appointment.doctor_id === user.id ? appointment : null)
           .filter(appointment => appointment !== null && appointment.status !== 'completed');
   
-        setBookedAppointments(nullPatientAppointments);
+        setBookedAppointments(nullDoctorAppointments);
         setSuccess(true);
         setError('');
       } catch (error) {
@@ -41,7 +41,7 @@ const DoctorManageAppointments = ({ userAppointments, cancelAppointment, loggedI
     };
   
     const getUserFromId = async () => {
-      const response = await axios.get(`http://localhost:8000/api/patient/${userId}`);
+      const response = await axios.get(`http://localhost:8000/api/doctor/${userId}`);
       return response.data;
     };
   
@@ -50,9 +50,9 @@ const DoctorManageAppointments = ({ userAppointments, cancelAppointment, loggedI
 
   const handleCancelAppointment = async (appointment) => {
     try {
-      // Send a PATCH request to update the appointment's patient_id to null
+      // Send a PATCH request to update the appointment's doctor_id to null
       await axios.patch(`http://localhost:8000/api/appointment/${appointment.id}/`, {
-        patient_id: null
+        doctor_id: null
       });
       
       // Update the bookedAppointments state by removing the canceled appointment
@@ -96,23 +96,15 @@ const DoctorManageAppointments = ({ userAppointments, cancelAppointment, loggedI
   return (
     <div>
       <h2>Your Booked Appointments</h2>
-      <ul className="appointment-list">
       {bookedAppointments.length > 0 ? (
-          bookedAppointments.map((appointment) => (
-            <li key={appointment.id}>
-              <div className="appointment-info" onClick={() => handleToggleExpand(appointment.id)}>
-                {appointment.doctor} - {appointment.time} (Reserved by: {appointment.reservedBy})
-              </div>
-              {/* Conditionally render medical details if the appointment is expanded */}
-              {expandedAppointmentId === appointment.id && (
-                <div className="medical-details">
-                  <h4>Medical Details:</h4>
-                  <p><strong>Reason:</strong> {appointment.reason}</p>
-                  <p><strong>Doctor's Notes:</strong> {appointment.notes}</p>
-                  {/* Add more medical details here as needed */}
-                </div>
-              )}
-              <div>
+        <ul className="appointment-list">
+          {bookedAppointments.map((appointment) => (
+          <li key={appointment.id} className="appointment-info" onClick={() => handleToggleExpand(appointment.id)}>
+            Doctor Id: {appointment.doctor_id} 
+            <br></br>Date: {appointment.appointment_date} 
+            <br></br>Status: {appointment.status}
+            <br></br>Patient Id: {appointment.patient_id}
+            <div>
                 <button onClick={() => handleCompleteAppointment(appointment)} className="complete-button" style={{margin: 7}}>
                 Complete
                 </button>
@@ -120,12 +112,12 @@ const DoctorManageAppointments = ({ userAppointments, cancelAppointment, loggedI
                   Cancel
                 </button>
               </div>
-            </li>
-          ))
-        ) : (
-          <p>You have no appointments.</p>
-        )}
-      </ul>
+          </li>
+        ))}
+        </ul>
+      ) : (
+        <p>You have no appointments.</p>
+      )}
     </div>
   );
 };
