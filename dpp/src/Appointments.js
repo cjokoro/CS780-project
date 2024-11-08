@@ -9,12 +9,12 @@ const Appointments = ({ availableAppointments, bookAppointment }) => {
   const [status, setStatus] = useState('');
   const [userId, setUserId] = useState('');
   const [userInfo, setUserInfo] = useState('');
+  const [doctorInfoMap, setDoctorInfoMap] = useState({});
 
   useEffect(() => {
     const getUserIdFromCookie = () => {
       const cookies = document.cookie.split('; ');
       const userIdCookie = cookies.find((cookie) => cookie.startsWith('userId='));
-      //console.log(userIdCookie ? userIdCookie.split('=')[1] : null);
       return userIdCookie ? userIdCookie.split('=')[1] : null;
     };
     const userId = getUserIdFromCookie();
@@ -24,28 +24,23 @@ const Appointments = ({ availableAppointments, bookAppointment }) => {
       const response = await axios.get(`http://localhost:8000/api/patient/${userId}`);
       const user = response;
       setUserInfo(user);
-      //console.log(user);
     }
     getUserFromId();
 
     const fetchAppointments = async () => {
       try {
         const response = await axios.get('http://localhost:8000/api/appointment/');
-        //console.log(response.data.results);
-
         const nullPatientAppointments = response.data.results.map(appointment => {
           if (appointment.patient_id === null) {
             return appointment;
           }
           return null;
         }).filter(appointment => appointment !== null);
-        //console.log(nullPatientAppointments);
-  
+
         setAppointments(nullPatientAppointments);
 
         setSuccess(true);
         setError('');
-
       } catch (error) {
         setSuccess(false);
         setError('Invalid user. Please create an account.');
@@ -53,6 +48,32 @@ const Appointments = ({ availableAppointments, bookAppointment }) => {
     };
     fetchAppointments();
   }, []);
+
+  const fetchDoctorInfo = async (doctor_id) => {
+    if (!doctorInfoMap[doctor_id]) {
+      try {
+        const response = await axios.get(`http://localhost:8000/api/doctor/${doctor_id}`);
+        setDoctorInfoMap((prev) => ({ ...prev, [doctor_id]: response.data }));
+      } catch (error) {
+        console.error(`Error fetching doctor info for doctor_id ${doctor_id}:`, error);
+      }
+    }
+  };
+
+  const formatDateTime = (datetime) => {
+    const date = new Date(datetime);
+    const options = {
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true
+    };
+    
+    return new Intl.DateTimeFormat('en-US', options).format(date);
+  };
+
   const handleBookAppointment = async (appointment) => {
     const updatedData = {
       appointment_date: appointment.appointment_date,
@@ -64,30 +85,33 @@ const Appointments = ({ availableAppointments, bookAppointment }) => {
     console.log("updatedData: ", updatedData);
     try {
       const response = axios.put(`http://localhost:8000/api/appointment/${appointment.id}/`, updatedData);
-      //console.log('Updated appointment:', response.data);
-      //console.log("appointment data: ", response);
       setAppointments(appointments.filter((a) => a.id !== appointment.id));
     } catch (error) {
       console.error('Error updating appointment:', error);
     }
-    //Appointments.fetchAppointments();
-    
-    //appointments.patient_id = userId;
   };
 
   return (
     <div>
       <h2>Available Appointments</h2>
       <ul className="appointment-list">
-        {appointments.map((appointment) => (
-          <li key={appointment.id} className="appointment-info">
-            Doctor Id: {appointment.doctor_id} 
-            <br></br>Date: {appointment.appointment_date} 
-            <br></br>Status: {appointment.status}
-            <br></br>Patient Id: {appointment.patient_id}
-            <button onClick={() => handleBookAppointment(appointment)}>Book</button>
-          </li>
-        ))}
+        {appointments.map((appointment) => {
+          const doctor = doctorInfoMap[appointment.doctor_id];
+
+          if (!doctor) {
+            fetchDoctorInfo(appointment.doctor_id);
+          }
+
+          return (
+            <li key={appointment.id} className="appointment-info">
+              Doctor: {doctor ? `${doctor.first_name} ${doctor.last_name}` : 'Loading...'}
+              <br />Date: {formatDateTime(appointment.appointment_date)}
+              <br />Status: {appointment.status}
+              <br />Patient Name: No Patient
+              <button onClick={() => handleBookAppointment(appointment)}>Book</button>
+            </li>
+          );
+        })}
       </ul>
     </div>
   );
