@@ -84,7 +84,7 @@ export default class App extends React.Component {
 
     const userId = getCookie('userId');
     const userRole = getCookie('userRole');
-
+    localStorage.setItem('userId', userId);
     if(userId !== 'null' || userRole !== 'null'){
       findUserRole();
     }
