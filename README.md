@@ -29,6 +29,6 @@ npm start
 ```
 Upon successful execution, the application should automatically open a window directing you to the login page.
 
-###Backend Setup
+### Backend Setup
 Before logging in, ensure the backend is correctly configured. Follow the setup instructions provided in the backend repository: [cs780-project-backend](https://github.com/atishshahrouniyar/cs780-project-backend).
 
