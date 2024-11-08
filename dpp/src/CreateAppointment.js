@@ -8,16 +8,14 @@ const CreateAppointment = ({ availableAppointments, bookAppointment }) => {
   const [error, setError] = useState('');
   const [userId, setUserId] = useState('');
   const [userInfo, setUserInfo] = useState('');
-  //const [doctorId, setDoctorId] = useState('');
   const [appointmentDate, setAppointmentDate] = useState('');
-  const [status, setStatus] = useState('Scheduled'); // Default status
-  //const [patientId, setPatientId] = useState('');
-  debugger;
+  const [status, setStatus] = useState('Scheduled');
+  const [doctorInfoMap, setDoctorInfoMap] = useState({});
+
   useEffect(() => {
     const getUserIdFromCookie = () => {
       const cookies = document.cookie.split('; ');
       const userIdCookie = cookies.find((cookie) => cookie.startsWith('userId='));
-      //console.log(userIdCookie ? userIdCookie.split('=')[1] : null);
       return userIdCookie ? userIdCookie.split('=')[1] : null;
     };
     const userId = getUserIdFromCookie();
@@ -27,14 +25,12 @@ const CreateAppointment = ({ availableAppointments, bookAppointment }) => {
       const response = await axios.get(`http://localhost:8000/api/doctor/${userId}`);
       const user = response;
       setUserInfo(user);
-      //console.log(user);
     }
     getUserFromId();
 
     const fetchAppointments = async () => {
       try {
         const response = await axios.get('http://localhost:8000/api/appointment/');
-        //console.log(response.data.results);
 
         const nullDoctorAppointments = response.data.results.map(appointment => {
           if (appointment.patient_id === null && appointment.doctor_id === userId) {
@@ -42,7 +38,6 @@ const CreateAppointment = ({ availableAppointments, bookAppointment }) => {
           }
           return null;
         }).filter(appointment => appointment !== null);
-        //console.log(nullPatientAppointments);
   
         setAppointments(nullDoctorAppointments);
 
@@ -57,6 +52,31 @@ const CreateAppointment = ({ availableAppointments, bookAppointment }) => {
     fetchAppointments();
   }, []);
 
+  const fetchDoctorInfo = async (doctor_id) => {
+    if (!doctorInfoMap[doctor_id]) {
+      try {
+        const response = await axios.get(`http://localhost:8000/api/doctor/${doctor_id}`);
+        setDoctorInfoMap((prev) => ({ ...prev, [doctor_id]: response.data }));
+      } catch (error) {
+        console.error(`Error fetching doctor info for doctor_id ${doctor_id}:`, error);
+      }
+    }
+  };
+
+  const formatDateTime = (datetime) => {
+    const date = new Date(datetime);
+    const options = {
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true
+    };
+    
+    return new Intl.DateTimeFormat('en-US', options).format(date);
+  };
+
   const handleCreateAppointment = async (event) => {
     event.preventDefault();
     
@@ -69,11 +89,9 @@ const CreateAppointment = ({ availableAppointments, bookAppointment }) => {
 
     try {
       const response = await axios.post('http://localhost:8000/api/appointment/', newAppointment);
-      setAppointments([...appointments, response.data]); // Add new appointment to list
-      //setDoctorId('');
+      setAppointments([...appointments, response.data]);
       setAppointmentDate('');
       setStatus('Scheduled');
-      //setPatientId('');
       alert('Appointment created successfully!');
     } catch (error) {
       console.error("Error creating appointment:", error);
@@ -87,7 +105,7 @@ const CreateAppointment = ({ availableAppointments, bookAppointment }) => {
 
     try {
       await axios.delete(`http://localhost:8000/api/appointment/${appointment.id}/`);
-      setAppointments(appointments.filter((a) => a.id !== appointment.id)); // Update state to remove deleted appointment
+      setAppointments(appointments.filter((a) => a.id !== appointment.id));
       alert('Appointment deleted successfully!');
     } catch (error) {
       console.error("Error deleting appointment:", error);
@@ -124,15 +142,23 @@ const CreateAppointment = ({ availableAppointments, bookAppointment }) => {
       </form>
       <h2>Your Available Appointments</h2>
       <ul className="appointment-list">
-        {appointments.map((appointment) => (
-          <li key={appointment.id} className="appointment-info">
-            Doctor Id: {appointment.doctor_id} 
-            <br></br>Date: {appointment.appointment_date} 
-            <br></br>Status: {appointment.status}
-            <br></br>Patient Id: {appointment.patient_id}
-            <button onClick={() => deleteAppointment(appointment)}>Delete</button>
-          </li>
-        ))}
+        {appointments.map((appointment) => {
+          const doctor = doctorInfoMap[appointment.doctor_id];
+
+          if (!doctor) {
+            fetchDoctorInfo(appointment.doctor_id);
+          }
+
+          return (
+            <li key={appointment.id} className="appointment-info">
+              Doctor: {doctor ? `${doctor.first_name} ${doctor.last_name}` : 'Loading...'}
+              <br />Date: {formatDateTime(appointment.appointment_date)}
+              <br />Status: {appointment.status}
+              <br />Patient Name: No Patient
+              <button onClick={() => deleteAppointment(appointment)}>Delete</button>
+            </li>
+          );
+        })}
       </ul>
     </div>
   );

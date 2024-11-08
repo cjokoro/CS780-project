@@ -10,6 +10,8 @@ const MedicalHistory = ({ medicalHistory }) => {
   const [appointments, setAppointments] = useState([]);
   const [userId, setUserId] = useState('');
   const [userInfo, setUserInfo] = useState('');
+  const [doctorInfoMap, setDoctorInfoMap] = useState({});
+
 
   useEffect(() => {
     const getUserIdFromCookie = () => {
@@ -48,19 +50,52 @@ const MedicalHistory = ({ medicalHistory }) => {
     fetchUserData();
   }, []);
 
+  const fetchDoctorInfo = async (doctor_id) => {
+    if (!doctorInfoMap[doctor_id]) {
+      try {
+        const response = await axios.get(`http://localhost:8000/api/doctor/${doctor_id}`);
+        setDoctorInfoMap((prev) => ({ ...prev, [doctor_id]: response.data }));
+      } catch (error) {
+        console.error(`Error fetching doctor info for doctor_id ${doctor_id}:`, error);
+      }
+    }
+  };
+
+  const formatDateTime = (datetime) => {
+    const date = new Date(datetime);
+    const options = {
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true
+    };
+    
+    return new Intl.DateTimeFormat('en-US', options).format(date);
+  };
+
   return (
     <div>
       <h2>Your Medical History</h2>
       {completedAppointments.length > 0 ? (
         <ul className="appointment-list">
-          {completedAppointments.map((appointment) => (
-          <li key={appointment.id} className="appointment-info">
-            Doctor Id: {appointment.doctor_id} 
-            <br></br>Date: {appointment.appointment_date} 
-            <br></br>Status: {appointment.status}
-            <br></br>Patient Id: {appointment.patient_id}
-          </li>
-        ))}
+          {completedAppointments.map((appointment) => {
+          const doctor = doctorInfoMap[appointment.doctor_id];
+
+          if (!doctor) {
+            fetchDoctorInfo(appointment.doctor_id);
+          }
+
+          return (
+            <li key={appointment.id} className="appointment-info">
+              Doctor: {doctor ? `${doctor.first_name} ${doctor.last_name}` : 'Loading...'}
+              <br />Date: {formatDateTime(appointment.appointment_date)}
+              <br />Status: {appointment.status}
+              <br />Patient Name: {userInfo ? `${userInfo.first_name} ${userInfo.last_name}` : 'Loading...'}
+            </li>
+          );
+        })}
         </ul>
       ) : (
         <p>No medical history available.</p>

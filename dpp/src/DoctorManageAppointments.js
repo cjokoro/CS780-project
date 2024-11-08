@@ -10,6 +10,7 @@ const DoctorManageAppointments = ({ userAppointments, cancelAppointment, loggedI
   const [appointments, setAppointments] = useState([]);
   const [userId, setUserId] = useState('');
   const [userInfo, setUserInfo] = useState('');
+  const [patientInfoMap, setPatientInfoMap] = useState({});
 
   useEffect(() => {
     const getUserIdFromCookie = () => {
@@ -24,7 +25,7 @@ const DoctorManageAppointments = ({ userAppointments, cancelAppointment, loggedI
     const fetchUserData = async () => {
       try {
         const user = await getUserFromId();
-        setUserInfo(user); // Set userInfo after user data is fetched
+        setUserInfo(user);
   
         const response = await axios.get('http://localhost:8000/api/appointment/');
         const nullDoctorAppointments = response.data.results
@@ -47,6 +48,31 @@ const DoctorManageAppointments = ({ userAppointments, cancelAppointment, loggedI
   
     fetchUserData();
   }, []);
+
+  const fetchPatientInfo = async (patient_id) => {
+    if (!patientInfoMap[patient_id]) {
+      try {
+        const response = await axios.get(`http://localhost:8000/api/patient/${patient_id}`);
+        setPatientInfoMap((prev) => ({ ...prev, [patient_id]: response.data }));
+      } catch (error) {
+        console.error(`Error fetching patient info for patient_id ${patient_id}:`, error);
+      }
+    }
+  };
+
+  const formatDateTime = (datetime) => {
+    const date = new Date(datetime);
+    const options = {
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true
+    };
+    
+    return new Intl.DateTimeFormat('en-US', options).format(date);
+  };
 
   const handleCancelAppointment = async (appointment) => {
     try {
@@ -94,23 +120,30 @@ const DoctorManageAppointments = ({ userAppointments, cancelAppointment, loggedI
       <h2>Your Booked Appointments</h2>
       {bookedAppointments.length > 0 ? (
         <ul className="appointment-list">
-          {bookedAppointments.map((appointment) => (
-          <li key={appointment.id} className="appointment-info" onClick={() => handleToggleExpand(appointment.id)}>
-            Doctor Id: {appointment.doctor_id} 
-            <br></br>Date: {appointment.appointment_date} 
-            <br></br>Status: {appointment.status}
-            <br></br>Patient Id: {appointment.patient_id}
-            <div>
+        {bookedAppointments.map((appointment) => {
+          const patient = patientInfoMap[appointment.patient_id];
+
+          if (!patient) {
+            fetchPatientInfo(appointment.patient_id);
+          }
+          return (
+            <li key={appointment.id} className="appointment-info">
+              Doctor: {userInfo ? `${userInfo.first_name} ${userInfo.last_name}` : 'Loading...'}
+              <br />Date: {formatDateTime(appointment.appointment_date)}
+              <br />Status: {appointment.status}
+              <br />Patient Name: {patient ? `${patient.first_name} ${patient.last_name}` : 'Loading...'}
+              <div>
                 <button onClick={() => handleCompleteAppointment(appointment)} className="complete-button" style={{margin: 7}}>
-                Complete
+                  Complete
                 </button>
                 <button onClick={() => handleCancelAppointment(appointment)} className="cancel-button">
                   Cancel
                 </button>
               </div>
-          </li>
-        ))}
-        </ul>
+            </li>
+          );
+        })}
+      </ul>
       ) : (
         <p>You have no appointments.</p>
       )}

@@ -31,6 +31,7 @@ export default class App extends React.Component {
         role: '',
         medicalHistory: [],
       },
+      userRoleMatches: true,
     };
 
     this.bookAppointment = this.bookAppointment.bind(this);
@@ -44,31 +45,39 @@ export default class App extends React.Component {
     const findUserRole = () =>{
       if(userRole === 'patient'){
         axios.get(`http://127.0.0.1:8000/api/patient/${userId}`)
-        .then((response) =>{
-  
-          {this.setState({
+        .then((response) => {
+          this.setState({
             loggedInUser: {
-              name: response.data.first_name + " " + response.data.last_name, // Set name based on retrieved user ID if necessary
+              name: `${response.data.first_name} ${response.data.last_name}`,
               role: userRole,
               medicalHistory: [],
             },
-          })
-        }
+            userRoleMatches: true,
+          });
+        })
+        .catch((error) => {
+          console.error("Error fetching patient data:", error);
+          this.setState({ userRoleMatches: false });
+        });
+    } else if (userRole === 'doctor') {
+      axios.get(`http://127.0.0.1:8000/api/doctor/${userId}`)
+      .then((response) => {
+        this.setState({
+          loggedInUser: {
+            name: `${response.data.first_name} ${response.data.last_name}`,
+            role: userRole,
+            medicalHistory: [],
+          },
+          userRoleMatches: true,
+        });
+      })
+      .catch((error) => {
+        console.error("Error fetching doctor data:", error);
+        this.setState({ userRoleMatches: false });
       });
-    }
-      else{
-        axios.get(`http://127.0.0.1:8000/api/doctor/${userId}`)
-        .then((response) =>{
-            {this.setState({
-            loggedInUser: {
-              name: response.data.first_name + " " + response.data.last_name, // Set name based on retrieved user ID if necessary
-              role: userRole,
-              medicalHistory: [],
-            },
-          })
-        }
-      }  
-    )};
+    } else {
+      this.setState({ userRoleMatches: false });  // Set to false if userRole does not match expected roles
+    };
    };
   
 
@@ -85,11 +94,9 @@ export default class App extends React.Component {
     const userId = getCookie('userId');
     const userRole = getCookie('userRole');
     localStorage.setItem('userId', userId);
-    if(userId !== 'null' || userRole !== 'null'){
+    if (userId && userRole) {
       findUserRole();
-    }
-    else{
-      window.alert('Login failed. Please try again')
+    } else {
       window.location.href = 'http://localhost:5173';
     }
   
@@ -141,8 +148,20 @@ export default class App extends React.Component {
   }
 
   render() {
-    const { loggedInUser } = this.state;
+    const { loggedInUser, userRoleMatches } = this.state;
 
+    if (!userRoleMatches) {
+      return (
+        <div style={{ textAlign: 'center', marginTop: '20px' }}>
+          <h2>Access Denied</h2>
+          <p>Your role does not grant access to this page.</p>
+          <button onClick={() => (window.location.href = 'http://localhost:5173')} style={{ marginTop: '10px' }}>
+            Return to login page
+          </button>
+        </div>
+      );
+    }
+    
     return (
       <Router>
         <main>
