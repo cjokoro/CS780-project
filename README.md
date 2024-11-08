@@ -1,15 +1,34 @@
-This is our project for CS780 - Advanced Software Engineering   
+# CS780 - Advanced Software Engineering Project
 
-To run this application you will need to have two terminals open. One terminal will be for the "dpp" file and the other for the "react-app" file.   
-Firstly, the imports. You will need to do these imports for both the terminals:   
+This repository contains our project for CS780 - Advanced Software Engineering.
+
+### Prerequisites
+To run this application, you’ll need to set up two separate terminal windows:
+- **Terminal 1**: For running the "dpp" file.
+- **Terminal 2**: For running the "react-app" file.
+
+### Installation
+In both terminals, execute the following commands to install the necessary dependencies:
+
+```bash
 npm install
 npm install react-bootstrap bootstrap
 npm install react-router-dom
 npm install axios
 npm install react react-dom
+```
 
-Next, in the "react-app" terminal type "npm run dev". Then in the "dpp" terminal type "npm start"   
-This should open up a window taking you to the login page.   
+### Running the Application
+1. In the "react-app" terminal, start the server with
+```bash
+npm run dev
+```
+2. In the "dpp" terminal, start the server with:
+```bash
+npm start
+```
+Upon successful execution, the application should automatically open a window directing you to the login page.
 
-Before logging in, you must connect the backend. Go to (https://github.com/atishshahrouniyar/cs780-project-backend) and follow the instructions on the README.
+###Backend Setup
+Before logging in, ensure the backend is correctly configured. Follow the setup instructions provided in the backend repository: [cs780-project-backend](https://github.com/atishshahrouniyar/cs780-project-backend).
 
