@@ -61,17 +61,23 @@ const Appointments = ({ availableAppointments, bookAppointment }) => {
   };
 
   const formatDateTime = (datetime) => {
-    const date = new Date(datetime);
+    // Parse the UTC datetime
+    const utcDate = new Date(datetime);
+    
+    // Create a local date by adjusting the UTC offset
+    const localDate = new Date(utcDate.getTime() + utcDate.getTimezoneOffset() * 60000);
+
     const options = {
       month: 'long',
       day: 'numeric',
       year: 'numeric',
       hour: 'numeric',
       minute: '2-digit',
-      hour12: true
+      hour12: true,
+      timeZone: 'America/Chicago'
     };
     
-    return new Intl.DateTimeFormat('en-US', options).format(date);
+    return new Intl.DateTimeFormat('en-US', options).format(localDate);
   };
 
   const handleBookAppointment = async (appointment) => {
