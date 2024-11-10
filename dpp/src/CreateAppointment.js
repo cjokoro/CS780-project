@@ -64,10 +64,7 @@ const CreateAppointment = ({ availableAppointments, bookAppointment }) => {
   };
 
   const formatDateTime = (datetime) => {
-    // Parse the UTC datetime
     const utcDate = new Date(datetime);
-    
-    // Create a local date by adjusting the UTC offset
     const localDate = new Date(utcDate.getTime() + utcDate.getTimezoneOffset() * 60000);
 
     const options = {

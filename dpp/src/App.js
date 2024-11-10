@@ -12,7 +12,7 @@ import MedicalHistory from './MedicalHistory';
 import ViewPatients from './ViewPatients';
 import CreateAppointment from "./CreateAppointment"
 
-const OrganDonation = () => (   // Temporary component for Organ Donation
+const OrganDonation = () => ( // Here as a "just in case"
   <div>
     <h2>Organ Donation</h2>
     <p>Register as an organ donor or search for available organs.</p>

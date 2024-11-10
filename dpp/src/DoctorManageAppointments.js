@@ -61,10 +61,7 @@ const DoctorManageAppointments = ({ userAppointments, cancelAppointment, loggedI
   };
 
   const formatDateTime = (datetime) => {
-    // Parse the UTC datetime
     const utcDate = new Date(datetime);
-    
-    // Create a local date by adjusting the UTC offset
     const localDate = new Date(utcDate.getTime() + utcDate.getTimezoneOffset() * 60000);
 
     const options = {
@@ -114,11 +111,6 @@ const DoctorManageAppointments = ({ userAppointments, cancelAppointment, loggedI
       setSuccess(false);
       setError('Failed to complete the appointment. Please try again.');
     }
-  };
-
-  const handleToggleExpand = (appointmentId) => {
-    // Toggle expansion: if the same appointment is clicked again, collapse it
-    setExpandedAppointmentId(expandedAppointmentId === appointmentId ? null : appointmentId);
   };
 
   return (

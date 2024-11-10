@@ -26,7 +26,7 @@ const MedicalHistory = ({ medicalHistory }) => {
     const fetchUserData = async () => {
       try {
         const user = await getUserFromId();
-        setUserInfo(user); // Set userInfo after user data is fetched
+        setUserInfo(user);
   
         const response = await axios.get('http://localhost:8000/api/appointment/');
         const nullPatientAppointments = response.data.results
@@ -62,10 +62,7 @@ const MedicalHistory = ({ medicalHistory }) => {
   };
 
   const formatDateTime = (datetime) => {
-    // Parse the UTC datetime
     const utcDate = new Date(datetime);
-    
-    // Create a local date by adjusting the UTC offset
     const localDate = new Date(utcDate.getTime() + utcDate.getTimezoneOffset() * 60000);
 
     const options = {

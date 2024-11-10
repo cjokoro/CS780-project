@@ -25,7 +25,7 @@ const ManageAppointments = ({ cancelAppointment }) => {
     const fetchUserData = async () => {
       try {
         const user = await getUserFromId();
-        setUserInfo(user); // Set userInfo after user data is fetched
+        setUserInfo(user);
   
         const response = await axios.get('http://localhost:8000/api/appointment/');
         const nullPatientAppointments = response.data.results
@@ -61,10 +61,7 @@ const ManageAppointments = ({ cancelAppointment }) => {
   };
 
   const formatDateTime = (datetime) => {
-    // Parse the UTC datetime
     const utcDate = new Date(datetime);
-    
-    // Create a local date by adjusting the UTC offset
     const localDate = new Date(utcDate.getTime() + utcDate.getTimezoneOffset() * 60000);
 
     const options = {
@@ -96,11 +93,6 @@ const ManageAppointments = ({ cancelAppointment }) => {
       setSuccess(false);
       setError('Failed to cancel the appointment. Please try again.');
     }
-  };
-
-  const handleToggleExpand = (appointmentId) => {
-    // Toggle expansion: if the same appointment is clicked again, collapse it
-    setExpandedAppointmentId(expandedAppointmentId === appointmentId ? null : appointmentId);
   };
 
   return (
