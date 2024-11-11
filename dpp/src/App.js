@@ -175,26 +175,29 @@ export default class App extends React.Component {
                       Welcome, {loggedInUser.name} ({loggedInUser.role})
                     </h2>
                   )}
-                </Col>
-                <Col>
-                  {loggedInUser ? (
-                    <button onClick={this.logout} style={{ position: 'relative', left: 300, bottom: 50 }}>
-                      Logout
-                    </button>
-                  ) : (
-                    <button onClick={() => window.location.href = 'http://localhost:5173'} style={{ position: 'relative', left: 300, bottom: 50 }}>
-                      Login
+                  <div>
+                  {loggedInUser.role === 'patient' && (
+                    <button
+                      onClick={() => window.location.href = 'http://localhost:5173/registerdonor'}
+                      style={{ position: 'absolute', right: 50, top: 50 }}
+                    >
+                      Register as a donor
                     </button>
                   )}
+                  {loggedInUser ? (
+                        <button onClick={this.logout} style={{ position: 'absolute', left: 50, top: 50 }}>
+                          Logout
+                        </button>
+                      ) : (
+                        <button onClick={() => window.location.href = 'http://localhost:5173'} style={{ position: 'relative', left: 300, bottom: 50 }}>
+                          Login
+                        </button>
+                      )}
+                  </div>
+                  
                 </Col>
-                {loggedInUser.role === 'patient' && (
-                  <button
-                    onClick={() => window.location.href = 'http://localhost:5173/registerdonor'}
-                    style={{ position: 'relative', left: 310, bottom: 50 }}
-                  >
-                    Register as a donor
-                  </button>
-                )}
+                
+                
               </header>
             </Row>
             {loggedInUser.role === 'patient' && (
