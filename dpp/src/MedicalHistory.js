@@ -11,7 +11,7 @@ const MedicalHistory = ({ medicalHistory }) => {
   const [userId, setUserId] = useState('');
   const [userInfo, setUserInfo] = useState('');
   const [doctorInfoMap, setDoctorInfoMap] = useState({});
-
+  const [medicalRecords, setMedicalRecords] = useState([]);
 
   useEffect(() => {
     const getUserIdFromCookie = () => {
@@ -36,6 +36,8 @@ const MedicalHistory = ({ medicalHistory }) => {
         setCompletedAppointments(nullPatientAppointments);
         setSuccess(true);
         setError('');
+
+        fetchMedicalRecord(user.id);
       } catch (error) {
         setSuccess(false);
         setError('Invalid user. Please create an account.');
@@ -78,30 +80,48 @@ const MedicalHistory = ({ medicalHistory }) => {
     return new Intl.DateTimeFormat('en-US', options).format(localDate);
   };
 
+  // New function to fetch medical records
+  const fetchMedicalRecord = async (userId) => {
+    try {
+      const response = await axios.get(`http://localhost:8000/api/medical-record/`);
+      console.log(response.data.results[0].appointment.doctor_id);
+      // Filter records where patient_id matches the logged-in user's ID
+      const userRecords = response.data.results
+        .map(record => record.patient === userId ? record : null)
+        //.filter(record => record.patient_id === userId);
+      setMedicalRecords(userRecords); // Store only the filtered records
+    } catch (error) {
+      console.error("Error fetching medical records:", error);
+      setError("Failed to fetch medical records.");
+    }
+  };
+
   return (
     <div>
-      <h2>Your Medical History</h2>
-      {completedAppointments.length > 0 ? (
+      <h2>Your Medical Records</h2>
+      {error && <p>{error}</p>}
+      
+      {medicalRecords.length > 0 ? (
         <ul className="appointment-list">
-          {completedAppointments.map((appointment) => {
-          const doctor = doctorInfoMap[appointment.doctor_id];
+          {medicalRecords.map((record) => {
+            const doctor = doctorInfoMap[record.appointment.doctor_id];
 
-          if (!doctor) {
-            fetchDoctorInfo(appointment.doctor_id);
-          }
+            if (!doctor) {
+              fetchDoctorInfo(record.appointment.doctor_id);
+            }
 
-          return (
-            <li key={appointment.id} className="appointment-info">
-              Doctor: {doctor ? `${doctor.first_name} ${doctor.last_name}` : 'Loading...'}
-              <br />Date: {formatDateTime(appointment.appointment_date)}
-              <br />Status: {appointment.status}
-              <br />Patient Name: {userInfo ? `${userInfo.first_name} ${userInfo.last_name}` : 'Loading...'}
-            </li>
-          );
-        })}
+            return (
+              <li key={record.id} className="appointment-info">
+                Doctor: {doctor ? `${doctor.first_name} ${doctor.last_name}` : 'Loading...'}
+                <br />Diagnosis: {record.diagnosis}
+                <br />Prescription: {record.prescription}
+                <br />Date: {formatDateTime(record.created_at)}
+              </li>
+            );
+          })}
         </ul>
       ) : (
-        <p>No medical history available.</p>
+        <p>No medical records available.</p>
       )}
     </div>
   );

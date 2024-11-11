@@ -242,6 +242,11 @@ export default class App extends React.Component {
                       <button className="button">View Patients</button>
                     </Link>
                   </li>
+                  <li>
+                    <Link to="http://localhost:5173/searchdonor">
+                      <button className="button">Organ Search</button>
+                    </Link>
+                  </li>
                 </ul>
               </nav>
             )}
