@@ -1,23 +1,23 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import './App.css';
-import MedicalHistory from './MedicalHistory';
+
 
 const ViewPatients = ({ loggedInUser, userAppointments }) => {
-  const [patients, setPatients] = useState([]); 
-  const [patientId, setPatientIds] = useState([]); 
-  const [medicalHistory, setMedicalHistory] = useState({});
-  const [selectedPatientHistory, setSelectedPatientHistory] = useState(null);
+  const [patients, setPatients] = useState([]); // Stores patient data and ids
+  const [patientId, setPatientIds] = useState([]); // Stores patient ids
+  const [medicalHistory, setMedicalHistory] = useState({}); // Stores the medical history of selected patient
+
 
   const getAppointmentData = async () => {
     try {
       const userId = localStorage.getItem('userId');
       const response = await axios.get('http://127.0.0.1:8000/api/appointment');
-      
-      // Filter patients by doctor_id and return an array of patient_ids
+     
       const idArray = response.data.results
         .filter(patient => patient.doctor_id === userId)
         .map(patient => patient.patient_id);
+
 
       setPatientIds(idArray);
     } catch (error) {
@@ -25,24 +25,24 @@ const ViewPatients = ({ loggedInUser, userAppointments }) => {
     }
   };
 
+
   const getPatientData = async (patientData) => {
     try {
       const response = await axios.get(`http://127.0.0.1:8000/api/patient/${patientData}`);
-      return response.data; // Assuming response.data contains the patient details
+      return response.data;
     } catch (error) {
       console.log('Error fetching patient data:', error);
       return null;
     }
   };
 
+
   const fetchDataPatient = async () => {
     try {
-      // If there are multiple patientIds, we map over them and fetch data for each one
       const patientDataPromises = patientId.map(id => getPatientData(id));
-
       const patientData = await Promise.all(patientDataPromises);
-
       const validPatients = patientData.filter(patient => patient !== null);
+
 
       const patientsWithId = validPatients.map((patient, index) => ({
         patientId: patientId[index],
@@ -50,41 +50,41 @@ const ViewPatients = ({ loggedInUser, userAppointments }) => {
         last_name: patient.last_name,
       }));
 
-      setPatients(patientsWithId);  // Store both patient data and ids in the state
+
+      setPatients(patientsWithId);
     } catch (error) {
       console.log('Error fetching patient data:', error);
     }
   };
 
-  // useEffect hook to fetch data when the logged-in user is a doctor and the component mounts
+
   useEffect(() => {
     if (loggedInUser.role === 'doctor') {
       getAppointmentData();
     }
-  }, [loggedInUser]); // Runs only when the logged-in user changes
+  }, [loggedInUser]);
 
-  // useEffect to trigger fetching patient data once patient IDs have been set
+
   useEffect(() => {
     if (patientId.length > 0) {
       fetchDataPatient();
     }
   }, [patientId]);
 
+
   const handleButtonClick = async (patient) => {
     try {
-      const response = await axios.get(`http://127.0.0.1:8000/api/appointment/`);
-      const apArray = response.data.results
-        .map(appointment => appointment.patient_id === patientId ? appointment : null)
-        .filter(appointment => appointment !== null && appointment.status === 'completed');
-      
+      const response = await axios.get(`http://127.0.0.1:8000/api/medical-record/?patient=${patient.patientId}`);
       setMedicalHistory(prev => ({
         ...prev,
-        [patient.patientId]: apArray,
+        [patient.patientId]: response.data.results,
+     
       }));
     } catch (error) {
       console.log('Error fetching medical history:', error);
     }
   };
+
 
   return (
     <div>
@@ -94,19 +94,28 @@ const ViewPatients = ({ loggedInUser, userAppointments }) => {
           {patients.map((patient, index) => (
             <div key={index} style={{ marginBottom: '10px' }}>
               <span>{patient.first_name} {patient.last_name}</span>
-              <button 
-                onClick={() => handleButtonClick(patient)} 
+              <button
+                onClick={() => handleButtonClick(patient)}
                 style={{ marginLeft: '10px' }}
               >
                 View Medical History
               </button>
               {medicalHistory[patient.patientId] && (
                 <div style={{ marginTop: '10px', padding: '10px', background: '#f9f9f9' }}>
-                <h4>Medical History:</h4>
-                <p>{medicalHistory[patient.patientId].medical_record || "No medical history available."}</p>
-                <p>Date: {medicalHistory[patient.patientId].appointment_date}</p>
-                <p>Status: {medicalHistory[patient.patientId].status}</p>
-              </div>
+                  <h4>Medical History:</h4>
+                  {medicalHistory[patient.patientId].length > 0 ? (
+                    medicalHistory[patient.patientId].map((record, recordIndex) => (
+                      <div key={recordIndex} style={{ marginBottom: '5px' }}>
+                        <p>Record Date: {record.created_at ? new Date(record.created_at).toLocaleString() : "N/A"}</p>
+                        <p>Diagnosis: {record.diagnosis}</p>
+                        <p>Prescription: {record.prescription}</p>
+                        <p>------------------------------------------</p>
+                      </div>
+                    ))
+                  ) : (
+                    <p>No medical history available.</p>
+                  )}
+                </div>
               )}
             </div>
           ))}
@@ -117,5 +126,6 @@ const ViewPatients = ({ loggedInUser, userAppointments }) => {
     </div>
   );
 };
+
 
 export default ViewPatients;

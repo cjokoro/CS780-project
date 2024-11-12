@@ -84,12 +84,12 @@ const MedicalHistory = ({ medicalHistory }) => {
   const fetchMedicalRecord = async (userId) => {
     try {
       const response = await axios.get(`http://localhost:8000/api/medical-record/`);
-      console.log(response.data.results[0].appointment.doctor_id);
-      // Filter records where patient_id matches the logged-in user's ID
-      const userRecords = response.data.results
-        .map(record => record.patient === userId ? record : null)
+      const userRecords = response.data.results.filter(record => record.patient === userId);
+
+        
         //.filter(record => record.patient_id === userId);
       setMedicalRecords(userRecords); // Store only the filtered records
+      
     } catch (error) {
       console.error("Error fetching medical records:", error);
       setError("Failed to fetch medical records.");
@@ -104,10 +104,16 @@ const MedicalHistory = ({ medicalHistory }) => {
       {medicalRecords.length > 0 ? (
         <ul className="appointment-list">
           {medicalRecords.map((record) => {
-            const doctor = doctorInfoMap[record.appointment.doctor_id];
+            debugger;
+            if (!record.appointment) {
+              return <li key={record.id} className="appointment-info">Appointment details not available.</li>;
+            }
 
-            if (!doctor) {
-              fetchDoctorInfo(record.appointment.doctor_id);
+            const doctorId = record.appointment.doctor_id;
+            const doctor = doctorId ? doctorInfoMap[doctorId] : null;
+            
+            if (!doctor && doctorId) {
+              fetchDoctorInfo(doctorId);
             }
 
             return (
