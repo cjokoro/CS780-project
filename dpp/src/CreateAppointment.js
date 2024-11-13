@@ -144,6 +144,7 @@ const CreateAppointment = ({ availableAppointments, bookAppointment }) => {
         <button type="submit">Create Appointment</button>
       </form>
       <h2>Your Available Appointments</h2>
+      {appointments.length > 0 ? (
       <ul className="appointment-list">
         {appointments.map((appointment) => {
           const doctor = doctorInfoMap[appointment.doctor_id];
@@ -163,6 +164,9 @@ const CreateAppointment = ({ availableAppointments, bookAppointment }) => {
           );
         })}
       </ul>
+      ) : (
+        <p>No unbooked appointments.</p>
+      )}
     </div>
   );
 };

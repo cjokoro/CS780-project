@@ -85,6 +85,23 @@ const ViewPatients = ({ loggedInUser, userAppointments }) => {
     }
   };
 
+  const formatDateTime = (datetime) => {
+    const utcDate = new Date(datetime);
+    const localDate = new Date(utcDate.getTime() + utcDate.getTimezoneOffset() * 60000);
+
+    const options = {
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+      timeZone: 'America/Chicago'
+    };
+    
+    return new Intl.DateTimeFormat('en-US', options).format(localDate);
+  };
+
 
   return (
     <div>
@@ -106,7 +123,7 @@ const ViewPatients = ({ loggedInUser, userAppointments }) => {
                   {medicalHistory[patient.patientId].length > 0 ? (
                     medicalHistory[patient.patientId].map((record, recordIndex) => (
                       <div key={recordIndex} style={{ marginBottom: '5px' }}>
-                        <p>Record Date: {record.created_at ? new Date(record.created_at).toLocaleString() : "N/A"}</p>
+                        <p>Record Date: {record.created_at ? formatDateTime(record.created_at) : "N/A"}</p>
                         <p>Diagnosis: {record.diagnosis}</p>
                         <p>Prescription: {record.prescription}</p>
                         <p>------------------------------------------</p>

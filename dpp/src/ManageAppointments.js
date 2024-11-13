@@ -30,7 +30,7 @@ const ManageAppointments = ({ cancelAppointment }) => {
         const response = await axios.get('http://localhost:8000/api/appointment/');
         const nullPatientAppointments = response.data.results
           .map(appointment => appointment.patient_id === user.id ? appointment : null)
-          .filter(appointment => appointment !== null);
+          .filter(appointment => appointment !== null && appointment.status !== 'completed');
   
         setBookedAppointments(nullPatientAppointments);
         setSuccess(true);

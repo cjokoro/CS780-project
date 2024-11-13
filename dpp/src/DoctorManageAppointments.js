@@ -91,6 +91,7 @@ const DoctorManageAppointments = ({ userAppointments, cancelAppointment, loggedI
       setBookedAppointments(prevAppointments =>
         prevAppointments.map(a => (a.id === appointmentId ? { ...a, showModal: false } : a))
       );
+      setBookedAppointments(bookedAppointments.filter((a) => a.id !== appointmentId));
       setSuccess(true);
       setError('');
       setDiagnosis('');

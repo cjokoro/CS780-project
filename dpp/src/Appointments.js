@@ -97,6 +97,7 @@ const Appointments = ({ availableAppointments, bookAppointment }) => {
   return (
     <div>
       <h2>Available Appointments</h2>
+      {appointments.length > 0 ? (
       <ul className="appointment-list">
         {appointments.map((appointment) => {
           const doctor = doctorInfoMap[appointment.doctor_id];
@@ -116,6 +117,9 @@ const Appointments = ({ availableAppointments, bookAppointment }) => {
           );
         })}
       </ul>
+      ) : (
+        <p>No available appointments.</p>
+      )}
     </div>
   );
 };
