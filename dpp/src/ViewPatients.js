@@ -13,10 +13,12 @@ const ViewPatients = ({ loggedInUser, userAppointments }) => {
     try {
       const userId = localStorage.getItem('userId');
       const response = await axios.get('http://127.0.0.1:8000/api/appointment');
-     
-      const idArray = response.data.results
-        .filter(patient => patient.doctor_id === userId)
-        .map(patient => patient.patient_id);
+      console.log("response", response.data.results);
+      const idArray = [...new Set(
+        response.data.results
+          .filter(patient => patient.doctor_id === userId)
+          .map(patient => patient.patient_id)
+      )];
 
 
       setPatientIds(idArray);
@@ -43,14 +45,13 @@ const ViewPatients = ({ loggedInUser, userAppointments }) => {
       const patientData = await Promise.all(patientDataPromises);
       const validPatients = patientData.filter(patient => patient !== null);
 
-
       const patientsWithId = validPatients.map((patient, index) => ({
         patientId: patientId[index],
         first_name: patient.first_name,
         last_name: patient.last_name,
       }));
 
-
+      
       setPatients(patientsWithId);
     } catch (error) {
       console.log('Error fetching patient data:', error);
